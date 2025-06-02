@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Proxiwiki Auto Search",
+  "version": "1.0",
+  "description": "Devine la page Wikipédia à partir des mots trouvés sur Proxiwiki.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "components/wikipedia_button.js",
+        "components/wikipedia_popup.js",
+        "services/page_wrapper.js",
+        "services/wikipedia_service.js",
+        "content.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["wikipedia-logo.png", "xmark.png"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
