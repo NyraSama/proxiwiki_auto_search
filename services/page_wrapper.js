@@ -4,7 +4,7 @@ class PageWrapper {
   static paragraphSeparatorClass = "flex-break"; // Class used to separate paragraphs
   static elementSelector = "#guessList > div"; // Selector for guess elements
   static foundWordsClass = "rect-max-score"; // Class for found words
-  static ignoreRegex = /[.,()«»:\-'"“”‘’;]/g; // Regex to ignore special chars
+  static ignoreRegex = /[.,()«»:\-'"“”‘’;\/]/g; // Regex to ignore special chars
 
   static getSearchQuery() {
     return (
@@ -45,22 +45,17 @@ class PageWrapper {
     let expectedTitleSizes = [];
 
     title.forEach((el, index) => {
-      if (this.isDashWord(index, title)) {
-        // Handle dash words separately
-        this.processDashWordInTitle(
-          index,
-          title,
-          expectedTitleWords,
-          expectedTitleSizes
-        );
-      } else if (el.classList.contains(this.foundWordsClass)) {
-        this.processFoundWordInTitle(
-          el,
-          expectedTitleWords,
-          expectedTitleSizes
-        );
-      } else {
-        this.processNonFoundWordInTitle(el, expectedTitleSizes);
+      // Ignore dashes and parentheses
+      if (!this.isDashOrParenthesis(index, title)) {
+        if (el.classList.contains(this.foundWordsClass)) {
+          this.processFoundWordInTitle(
+            el,
+            expectedTitleWords,
+            expectedTitleSizes
+          );
+        } else {
+          this.processNonFoundWordInTitle(el, expectedTitleSizes);
+        }
       }
     });
 
@@ -80,53 +75,15 @@ class PageWrapper {
   }
 
   static processNonFoundWordInTitle(el, expectedTitleSizes) {
-    expectedTitleSizes.push(this.getNonFoundWordSize(el));
+    expectedTitleSizes.push(el.offsetWidth / this.titleLetterSize);
   }
 
-  static isDashWord(index, title) {
+  static isDashOrParenthesis(index, title) {
     return (
       title[index].innerText.trim() === "-" ||
-      (index > 0 && title[index - 1].innerText.trim() === "-") ||
-      (index < title.length - 1 && title[index + 1].innerText.trim() === "-")
+      title[index].innerText.trim() === "(" ||
+      title[index].innerText.trim() === ")"
     );
-  }
-
-  static processDashWordInTitle(
-    index,
-    title,
-    expectedTitleWords,
-    expectedTitleSizes
-  ) {
-    if (title[index].innerText.trim() !== "-") {
-      return; // Wait for the dash to handle the combination
-    }
-
-    let prevEl = title[index - 1];
-    let nextEl = title[index + 1];
-
-    if (
-      prevEl.classList.contains(this.foundWordsClass) &&
-      nextEl.classList.contains(this.foundWordsClass)
-    ) {
-      let prevText = prevEl.innerText.trim();
-      let nextText = nextEl.innerText.trim();
-      let combinedWord = `${prevText}-${nextText}`;
-
-      // Remove the previous elements word and add the combined word
-      expectedTitleWords.push(combinedWord);
-
-      // Remove the previous element's size and add the combined word size
-      expectedTitleSizes.push(combinedWord.length);
-    } else {
-      let prevElSize = this.getNonFoundWordSize(prevEl);
-      let nextElSize = this.getNonFoundWordSize(nextEl);
-      expectedTitleSizes.push(prevElSize + 1 + nextElSize);
-    }
-  }
-
-  static getNonFoundWordSize(el) {
-    // Calculate the size of a non-found word based on its width
-    return el.offsetWidth / this.titleLetterSize;
   }
 
   static getFoundSentences() {
