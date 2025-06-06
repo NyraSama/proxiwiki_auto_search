@@ -100,7 +100,12 @@ class WikipediaService {
     }
 
     return pageTitles.filter((title) => {
-      let titleWords = title.split(" ");
+      // Preprocess the title: remove special characters and split into words
+      let titleWords = title
+        .replace(/[()]/g, "") // Remove parentheses
+        .replace(/-/g, " ") // Replace dash with spaces
+        .split(" "); // Split into words
+
       // Check if the title has the expected number of words
       if (titleWords.length !== titleFilter.expectedTitleSize) {
         return false;
