@@ -25,7 +25,7 @@ class PageWrapper {
           : null;
       })
       .filter(Boolean) // Remove null values
-      .join(",");
+      .join(" ");
   }
 
   static getSearchQueryForTitleWords() {
@@ -34,7 +34,7 @@ class PageWrapper {
       return ""; // No title words to search for
     }
 
-    return foundTitleWords.map((word) => `intitle:"${word}"`).join(",") + ",";
+    return foundTitleWords.map((word) => `intitle:"${word}"`).join(" ") + " ";
   }
 
   static getTitleFilter() {
@@ -46,7 +46,7 @@ class PageWrapper {
 
     title.forEach((el, index) => {
       // Ignore dashes and parentheses
-      if (!this.isDashOrParenthesis(index, title)) {
+      if (!this.isIgnoredChar(index, title)) {
         if (el.classList.contains(this.foundWordsClass)) {
           this.processFoundWordInTitle(
             el,
@@ -78,12 +78,8 @@ class PageWrapper {
     expectedTitleSizes.push(el.offsetWidth / this.titleLetterSize);
   }
 
-  static isDashOrParenthesis(index, title) {
-    return (
-      title[index].innerText.trim() === "-" ||
-      title[index].innerText.trim() === "(" ||
-      title[index].innerText.trim() === ")"
-    );
+  static isIgnoredChar(index, title) {
+    return title[index].innerText.trim().match(this.ignoreRegex);
   }
 
   static getFoundSentences() {

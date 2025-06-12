@@ -103,8 +103,9 @@ class WikipediaService {
       // Preprocess the title: remove special characters and split into words
       let titleWords = title
         .replace(/[()]/g, "") // Remove parentheses
-        .replace(/-/g, " ") // Replace dash with spaces
-        .split(" "); // Split into words
+        .replace(PageWrapper.ignoreRegex, " ") // Replace other ignored chars with spaces
+        .split(" ") // Split into words
+        .filter((word) => word.length > 0); // Remove empty words
 
       // Check if the title has the expected number of words
       if (titleWords.length !== titleFilter.expectedTitleSize) {
